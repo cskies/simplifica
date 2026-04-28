@@ -42,17 +42,12 @@ public class ClaudeService {
         // Structured output: o SDK gera o JSON Schema a partir de SimplificaResult
         // e o Claude retorna JSON tipado — sem parsing manual
         StructuredMessageCreateParams<SimplificaResult> params = MessageCreateParams.builder()
-                // claude-opus-4-7 = máxima qualidade
-                // Para volume alto considere "claude-sonnet-4-6" (mesmo resultado, ~6× mais barato)
-                .model("claude-opus-4-7")
+                .model("claude-sonnet-4-6")
                 .maxTokens(2048L)
-                // Prompt cacheado com TTL de 1 hora — reduz custo ~90% nos requests seguintes
                 .systemOfTextBlockParams(List.of(
                         TextBlockParam.builder()
                                 .text(SYSTEM_PROMPT)
-                                .cacheControl(CacheControlEphemeral.builder()
-                                        .ttl(CacheControlEphemeral.Ttl.TTL_1H)
-                                        .build())
+                                .cacheControl(CacheControlEphemeral.builder().build())
                                 .build()))
                 .outputConfig(SimplificaResult.class)
                 .addUserMessage("Analise este documento:\n\n" + texto)
