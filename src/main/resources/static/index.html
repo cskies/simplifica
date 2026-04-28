@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplifica — Entenda qualquer documento</title>
+    <style>
+        :root {
+            --primary:       #2563EB;
+            --primary-dark:  #1D4ED8;
+            --success:       #16A34A;
+            --warning:       #D97706;
+            --danger:        #DC2626;
+            --bg:            #F1F5F9;
+            --card:          #FFFFFF;
+            --border:        #E2E8F0;
+            --text:          #0F172A;
+            --muted:         #64748B;
+            --radius:        0.75rem;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── Header ── */
+        header {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.875rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+        .logo        { font-size: 1.35rem; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
+        .logo-badge  { font-size: 0.7rem; font-weight: 600; background: #DBEAFE; color: var(--primary);
+                       padding: 0.15rem 0.5rem; border-radius: 9999px; }
+        .logo-sub    { margin-left: auto; font-size: 0.8rem; color: var(--muted); }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 3.5rem 1rem 2rem;
+        }
+        .hero h1 {
+            font-size: clamp(1.6rem, 4vw, 2.25rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+        }
+        .hero p { color: var(--muted); font-size: 1.05rem; max-width: 480px; margin: 0 auto; }
+
+        /* ── Steps ── */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.75rem 0;
+            flex-wrap: wrap;
+        }
+        .step        { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.875rem; }
+        .step-num    { width: 1.5rem; height: 1.5rem; background: var(--primary); color: #fff;
+                       border-radius: 50%; display: grid; place-items: center;
+                       font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+
+        /* ── Container ── */
+        .container { max-width: 760px; margin: 0 auto; padding: 0 1rem 4rem; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* ── Textarea ── */
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.15s;
+            color: var(--text);
+        }
+        textarea:focus  { border-color: var(--primary); box-shadow: 0 0 0 3px #DBEAFE; }
+        textarea::placeholder { color: #94A3B8; }
+
+        /* ── Button ── */
+        .btn {
+            width: 100%;
+            margin-top: 0.875rem;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            letter-spacing: 0.01em;
+        }
+        .btn:hover    { background: var(--primary-dark); }
+        .btn:active   { transform: scale(0.99); }
+        .btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+        .hint { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: 0.4rem; }
+
+        /* ── Loading ── */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--muted);
+        }
+        .loading.show { display: block; }
+        .spinner {
+            display: inline-block;
+            width: 2.25rem; height: 2.25rem;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin-bottom: 0.75rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { font-size: 0.95rem; }
+
+        /* ── Error ── */
+        .error {
+            display: none;
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #B91C1C;
+            padding: 0.875rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .error.show { display: block; }
+
+        /* ── Result ── */
+        .result { display: none; margin-top: 1.5rem; }
+        .result.show { display: block; }
+
+        /* Verdict badge */
+        .verdict {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.875rem;
+            padding: 1rem 1.25rem;
+            border-radius: 0.625rem;
+            margin-bottom: 1.5rem;
+        }
+        .verdict.verde   { background: #F0FDF4; border: 1.5px solid #86EFAC; }
+        .verdict.amarelo { background: #FFFBEB; border: 1.5px solid #FDE68A; }
+        .verdict.vermelho{ background: #FEF2F2; border: 1.5px solid #FECACA; }
+
+        .verdict-icon  { font-size: 1.5rem; flex-shrink: 0; margin-top: 0.1rem; }
+        .verdict-body  { flex: 1; }
+        .verdict-label { font-weight: 700; font-size: 1rem; }
+        .verdict-motivo{ font-size: 0.875rem; margin-top: 0.25rem; line-height: 1.5; }
+
+        .verdict.verde    .verdict-label { color: var(--success); }
+        .verdict.amarelo  .verdict-label { color: var(--warning); }
+        .verdict.vermelho .verdict-label { color: var(--danger); }
+        .verdict.verde    .verdict-motivo { color: #166534; }
+        .verdict.amarelo  .verdict-motivo { color: #92400E; }
+        .verdict.vermelho .verdict-motivo { color: #991B1B; }
+
+        /* Sections */
+        .section       { margin-bottom: 1.5rem; }
+        .section-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.625rem; color: var(--text); }
+
+        .resumo-text {
+            font-size: 0.92rem;
+            line-height: 1.75;
+            color: #334155;
+            white-space: pre-line;
+        }
+
+        .pontos-list { list-style: none; }
+        .pontos-list li {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.625rem 0.875rem;
+            margin-bottom: 0.5rem;
+            background: #FFFBEB;
+            border-left: 3px solid #FCD34D;
+            border-radius: 0 0.375rem 0.375rem 0;
+            font-size: 0.875rem;
+            line-height: 1.55;
+            color: #44403C;
+        }
+        .pontos-list li::before { content: "⚠"; flex-shrink: 0; font-size: 0.8rem; margin-top: 0.1rem; }
+
+        /* Divider */
+        hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Simplifica</div>
+    <span class="logo-badge">Beta</span>
+    <span class="logo-sub">Powered by Claude AI</span>
+</header>
+
+<div class="hero">
+    <h1>Entenda qualquer documento em segundos</h1>
+    <p>Cole um contrato, termo bancário ou documento governamental e receba uma explicação em português simples.</p>
+
+
+</div>
+
+<div class="container">
+
+    <!-- Input -->
+    <div class="card">
+        <textarea id="inputText"
+            placeholder="Cole aqui o texto do contrato, termo bancário, documento jurídico ou governamental...
+
+Exemplos: contrato de aluguel, termos de uso, contrato de trabalho, financiamento, acordo bancário..."></textarea>
+        <div class="hint">Ctrl + Enter para enviar</div>
+        <button class="btn" id="btn" onclick="simplify()">🔍 Simplificar documento</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analisando o documento com IA...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error" id="error"></div>
+
+    <!-- Result -->
+    <div class="result" id="result">
+        <div class="card">
+
+            <!-- Veredicto -->
+            <div id="verdictBadge" class="verdict">
+                <span class="verdict-icon" id="verdictIcon"></span>
+                <div class="verdict-body">
+                    <div class="verdict-label" id="verdictLabel"></div>
+                    <div class="verdict-motivo" id="verdictMotivo"></div>
+                </div>
+            </div>
+
+            <!-- Resumo -->
+            <div class="section">
+                <div class="section-title">📋 Resumo em linguagem simples</div>
+                <div class="resumo-text" id="resumo"></div>
+            </div>
+
+            <!-- Pontos de atenção -->
+            <div class="section" id="pontosSection">
+                <hr>
+                <div class="section-title">⚠️ Pontos de atenção</div>
+                <ul class="pontos-list" id="pontosList"></ul>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const API_BASE = (typeof window.API_BASE_URL !== 'undefined') ? window.API_BASE_URL : '';
+
+    const VERDICT_MAP = {
+        'seguro_assinar':     { cls: 'verde',    icon: '✅', label: 'Seguro para assinar' },
+        'atencao_necessaria': { cls: 'amarelo',  icon: '⚠️', label: 'Atenção necessária' },
+        'cuidado_alto':       { cls: 'vermelho', icon: '🚨', label: 'Cuidado alto' },
+    };
+
+    async function simplify() {
+        const texto = document.getElementById('inputText').value.trim();
+        if (texto.length < 20) {
+            showError('Cole um texto maior para análise (mínimo 20 caracteres).');
+            return;
+        }
+
+        setLoading(true);
+        hideError();
+        hideResult();
+
+        try {
+            const res = await fetch(`${API_BASE}/api/simplify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ texto }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `Erro ${res.status} — tente novamente.`);
+            }
+
+            renderResult(await res.json());
+        } catch (e) {
+            showError(e.message || 'Erro inesperado. Verifique sua conexão e tente novamente.');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function renderResult(data) {
+        const cfg = VERDICT_MAP[data.veredicto] ?? VERDICT_MAP['atencao_necessaria'];
+
+        document.getElementById('verdictBadge').className = `verdict ${cfg.cls}`;
+        document.getElementById('verdictIcon').textContent  = cfg.icon;
+        document.getElementById('verdictLabel').textContent = cfg.label;
+        document.getElementById('verdictMotivo').textContent = data.veredictoMotivo ?? '';
+        document.getElementById('resumo').textContent = data.resumo ?? '';
+
+        const list = document.getElementById('pontosList');
+        list.innerHTML = '';
+        const pontos = data.pontosAtencao ?? [];
+        pontos.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = p;
+            list.appendChild(li);
+        });
+        document.getElementById('pontosSection').style.display = pontos.length ? 'block' : 'none';
+
+        document.getElementById('result').classList.add('show');
+        document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function setLoading(on) {
+        document.getElementById('btn').disabled = on;
+        document.getElementById('btn').textContent = on ? 'Analisando...' : '🔍 Simplificar documento';
+        document.getElementById('loading').classList.toggle('show', on);
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('error');
+        el.textContent = msg;
+        el.classList.add('show');
+    }
+
+    function hideError()  { document.getElementById('error').classList.remove('show'); }
+    function hideResult() { document.getElementById('result').classList.remove('show'); }
+
+    document.getElementById('inputText').addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') simplify();
+    });
+</script>
+
+</body>
+</html>
