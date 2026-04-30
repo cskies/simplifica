@@ -209,6 +209,33 @@
 
         /* Divider */
         hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 2rem 1rem 2.5rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            background: #fff;
+        }
+        footer p { margin-bottom: 0.75rem; }
+        .kofi-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #FF5E5B;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.1rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            box-shadow: 0 2px 6px rgba(255,94,91,0.35);
+        }
+        .kofi-btn:hover  { opacity: 0.88; }
+        .kofi-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
@@ -277,6 +304,13 @@ Exemplos: contrato de aluguel, termos de uso, contrato de trabalho, financiament
     </div>
 
 </div>
+
+<footer>
+    <p>O Simplifica é gratuito e open source. Se te ajudou a evitar um mau contrato, considere apoiar ☕</p>
+    <a class="kofi-btn" href="https://ko-fi.com/conradomoura" target="_blank" rel="noopener">
+        ☕ Me pague um café no Ko-fi
+    </a>
+</footer>
 
 <script>
     const API_BASE = (typeof window.API_BASE_URL !== 'undefined') ? window.API_BASE_URL : '';
