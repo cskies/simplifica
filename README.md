@@ -1,20 +1,64 @@
-# Simplifica
+# Simplifica — AI-Powered Document Analyzer
 
-Tradutor de documentos jurídicos e bancários para linguagem simples, powered by Claude AI.
+**Traduz documentos jurídicos e bancários para linguagem simples com análise de risco.**
 
-O usuário cola um contrato, termo bancário ou documento governamental e recebe:
-- **Resumo** em linguagem do dia a dia
-- **Pontos de atenção** (riscos, obrigações, prazos)
-- **Veredicto**: `Seguro para assinar` / `Atenção necessária` / `Cuidado alto`
+O usuário:
+1. Faz login ou se registra
+2. Cola ou faz upload de um contrato, termo bancário ou documento governamental
+3. Recebe instantaneamente:
+   - **Resumo** em linguagem acessível
+   - **Pontos de atenção** (riscos, obrigações, prazos)
+   - **Veredicto de segurança**: 🟢 Seguro | 🟡 Atenção | 🔴 Cuidado
 
-## Stack
+## 🎯 Proposta de Valor
+
+- **Para pessoas físicas:** Entender contratos/documentos antes de assinar
+- **Para advogados:** Análise rápida de documentos, foco em pontos críticos
+- **Para contadores:** Automatizar análise de termos bancários/comerciais
+- **Para startups:** Integrar análise via API
+
+---
+
+## 🔧 Tech Stack
 
 | Camada    | Tecnologia                          |
 |-----------|-------------------------------------|
 | Backend   | Spring Boot 3.2.5 · Java 21         |
-| IA        | Claude API (`claude-opus-4-7`)      |
-| Frontend  | HTML + CSS + JS puro (sem deps)     |
-| Deploy    | Railway (backend) · Vercel (frontend)|
+| Database  | PostgreSQL 16 (com Spring Data JPA) |
+| Auth      | JWT (Spring Security)               |
+| IA        | Claude API (Sonnet 4.6)             |
+| Frontend  | HTML5 + CSS3 + Vanilla JS (sem deps)|
+| Deploy    | Railway (backend) + Vercel (frontend)|
+| Dev Stack | Docker Compose, Maven, Git          |
+
+---
+
+## 📋 Features
+
+### **Core**
+- ✅ Análise de documentos com Claude IA
+- ✅ Extração de texto de PDF e DOCX
+- ✅ Veredicto de segurança em 3 níveis
+- ✅ Resposta estruturada (resumo + pontos + veredicto)
+
+### **Authentication & Billing**
+- ✅ JWT-based register/login
+- ✅ Subscription plans (FREE/PRO/BUSINESS)
+- ✅ Monthly quota enforcement (5/100/unlimited)
+- ✅ Document history per user
+- ✅ Auto quota reset (mensal)
+
+### **API**
+- ✅ REST endpoints com token authentication
+- ✅ Rate limiting preparado
+- ✅ CORS configurável
+- ✅ Health check endpoint
+
+### **Infrastructure**
+- ✅ Docker container (multi-stage build)
+- ✅ Docker Compose para dev (PostgreSQL)
+- ✅ Railway deployment ready
+- ✅ Environment-based config (.env)
 
 ---
 
@@ -26,118 +70,399 @@ O usuário cola um contrato, termo bancário ou documento governamental e recebe
 
 ---
 
-## Rodando localmente
+## 🚀 Quick Start
 
-### 1. Clone e entre no projeto
+### **Pré-requisitos**
+- Java 21+
+- Maven 3.9+ (ou use `./run.sh`)
+- Docker + Docker Compose (para PostgreSQL)
+- API key Anthropic → [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
 
+---
+
+### **1. Clone o projeto**
 ```bash
 git clone <url-do-repo>
 cd simplifica
 ```
 
-### 2. Configure a chave da API
+---
 
-Crie o arquivo `.env` na raiz do projeto:
-
+### **2. Inicie PostgreSQL**
 ```bash
-echo 'ANTHROPIC_API_KEY=sk-ant-api03-...' > .env
+docker-compose up -d
 ```
 
-> O `.env` já está no `.gitignore` — nunca será commitado.
-
-### 3. Execute
-
-**Opção A — script pronto (recomendado):**
-
+Verifica que está rodando:
 ```bash
-./run.sh
-```
-
-**Opção B — exportando a variável manualmente:**
-
-```bash
-export ANTHROPIC_API_KEY=sk-ant-api03-...
-~/.sdkman/candidates/maven/current/bin/mvn spring-boot:run
-```
-
-**Opção C — IntelliJ IDEA:**
-
-1. `Run → Edit Configurations → + → Spring Boot`
-2. Main class: `com.simplifica.SimplificaApplication`
-3. Em **Environment variables**: `ANTHROPIC_API_KEY=sk-ant-api03-...`
-4. Clique em Run ▶
-
-### 4. Acesse
-
-```
-http://localhost:8080
+docker ps | grep simplifica-db
 ```
 
 ---
 
-## Estrutura do projeto
+### **3. Configure as variáveis de ambiente**
+```bash
+cp .env.example .env
+# Edite .env com sua ANTHROPIC_API_KEY
+```
+
+Conteúdo do `.env`:
+```env
+ANTHROPIC_API_KEY=sk-ant-...seu-token-aqui...
+DATABASE_URL=jdbc:postgresql://localhost:5432/simplifica
+DB_USER=simplifica
+DB_PASSWORD=simplifica123
+JWT_SECRET=sua-chave-secreta-minimo-32-caracteres
+PORT=8080
+```
+
+---
+
+### **4. Build & Run**
+
+**Opção A — Maven direto:**
+```bash
+mvn clean package -DskipTests
+java -jar target/simplifica-*.jar
+```
+
+**Opção B — Maven + Spring Boot:**
+```bash
+mvn spring-boot:run
+```
+
+**Opção C — Script (recomendado):**
+```bash
+./run.sh
+```
+
+**Opção D — IntelliJ IDEA:**
+1. `Run → Edit Configurations → + → Spring Boot`
+2. Main class: `com.simplifica.SimplificaApplication`
+3. Environment vars: `ANTHROPIC_API_KEY=...`
+4. Click Run ▶
+
+---
+
+### **5. Acesse a aplicação**
+
+**Frontend:** http://localhost:8080
+
+**API Base:** http://localhost:8080/api
+
+---
+
+### **6. Teste a API**
+
+Registre-se:
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "teste@example.com",
+    "password": "senha123456",
+    "name": "Test User"
+  }'
+```
+
+Copie o token retornado e use:
+```bash
+TOKEN="seu_token_aqui"
+
+curl -X POST http://localhost:8080/api/simplify \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "texto": "Contrato de aluguel..."
+  }'
+```
+
+---
+
+### **Troubleshooting**
+
+| Erro | Solução |
+|------|---------|
+| `Connection refused (5432)` | `docker-compose up -d` |
+| `ANTHROPIC_API_KEY not found` | Adicionar a `.env` |
+| `Unauthorized: Invalid JWT` | Token expirou (24h), login novamente |
+| `Quota exceeded` | FREE tier = 5 docs/mês, upgrade para PRO |
+| `Port 8080 already in use` | `PORT=8081 mvn spring-boot:run` |
+
+---
+
+## 📁 Estrutura do Projeto
 
 ```
 simplifica/
 ├── src/main/
 │   ├── java/com/simplifica/
 │   │   ├── config/
-│   │   │   ├── AnthropicConfig.java   # Bean do cliente Anthropic
-│   │   │   └── CorsConfig.java        # CORS configurável
+│   │   │   ├── AnthropicConfig.java      # Bean Anthropic SDK
+│   │   │   ├── CorsConfig.java           # CORS setup
+│   │   │   └── SecurityConfig.java       # JWT + Spring Security
+│   │   │
 │   │   ├── controller/
-│   │   │   └── SimplifyController.java # POST /api/simplify
+│   │   │   ├── AuthController.java       # POST /api/auth/register, login
+│   │   │   └── SimplifyController.java   # Document analysis + auth required
+│   │   │
+│   │   ├── service/
+│   │   │   ├── ClaudeService.java        # IA integration logic
+│   │   │   ├── AuthService.java          # Auth + quota management
+│   │   │   └── TextExtractorService.java # PDF/DOCX extraction
+│   │   │
+│   │   ├── entity/
+│   │   │   ├── User.java                 # User model (auth + quotas)
+│   │   │   ├── Document.java             # Analysis history per user
+│   │   │   └── SubscriptionPlan.java     # ENUM: FREE, PRO, BUSINESS
+│   │   │
 │   │   ├── dto/
-│   │   │   ├── SimplifyRequest.java   # Entrada validada
-│   │   │   ├── SimplifyResponse.java  # Resposta ao frontend
-│   │   │   └── SimplificaResult.java  # Schema tipado para o Claude
-│   │   └── service/
-│   │       └── ClaudeService.java     # Lógica de chamada à API
+│   │   │   ├── SimplifyRequest.java      # { "texto": "..." }
+│   │   │   ├── SimplifyResponse.java     # { "resumo", "pontosAtencao", ... }
+│   │   │   ├── SimplificaResult.java     # Claude schema (internal)
+│   │   │   ├── AuthRequest.java          # { "email", "password", "name" }
+│   │   │   └── AuthResponse.java         # { "token", "plan", "remaining" }
+│   │   │
+│   │   ├── repo/
+│   │   │   ├── UserRepository.java       # JPA: findByEmail()
+│   │   │   └── DocumentRepository.java   # JPA: findByUserOrderByDate()
+│   │   │
+│   │   ├── security/
+│   │   │   ├── JwtUtil.java              # Token generation/validation
+│   │   │   └── JwtFilter.java            # OncePerRequestFilter for JWT
+│   │   │
+│   │   ├── scheduler/
+│   │   │   └── QuotaResetScheduler.java  # Cron: reset quotas monthly
+│   │   │
+│   │   └── SimplificaApplication.java    # Spring Boot entry point
+│   │
 │   └── resources/
-│       ├── application.properties
-│       └── static/index.html          # Frontend completo
-├── .env                               # Sua chave (gitignored)
-├── .gitignore
-├── run.sh                             # Atalho para rodar
-└── pom.xml
+│       ├── application.properties        # DB + JWT + API config
+│       └── static/index.html             # Frontend SPA
+│
+├── docker-compose.yml                    # PostgreSQL local dev
+├── Dockerfile                            # Multi-stage Java build
+├── railway.toml                          # Railway deployment config
+├── .env.example                          # Env vars template
+├── SETUP_AUTH.md                         # Auth setup guide
+├── README.md                             # This file
+├── run.sh                                # Dev quick-start
+└── pom.xml                               # Maven dependencies
+```
+
+### **Layers Explanation**
+
+| Layer | Responsabilidade | Files |
+|-------|-----------------|-------|
+| **Controller** | HTTP endpoints, request validation | AuthController, SimplifyController |
+| **Service** | Business logic, IA integration, auth | ClaudeService, AuthService |
+| **Entity** | Domain models, DB schema | User, Document, SubscriptionPlan |
+| **Repo** | Database access (JPA) | UserRepository, DocumentRepository |
+| **Security** | JWT generation, token validation | JwtUtil, JwtFilter |
+| **Scheduler** | Async tasks (quota reset) | QuotaResetScheduler |
+| **Config** | Spring beans, security config | SecurityConfig, AnthropicConfig |
+| **DTO** | Request/response contracts | AuthRequest, SimplifyRequest, etc |
+
+---
+
+## 🔌 API Endpoints
+
+### **Authentication**
+
+#### `POST /api/auth/register`
+Criar nova conta.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "senha123456",
+    "name": "John Doe"
+  }'
+```
+
+**Response (201 Created):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ...",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "plan": "FREE",
+  "documentsRemaining": 5,
+  "message": "Registrado com sucesso"
+}
+```
+
+#### `POST /api/auth/login`
+Login com email/password existente.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "senha123456"
+  }'
+```
+
+**Response (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ...",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "plan": "FREE",
+  "documentsRemaining": 5,
+  "message": "Login realizado com sucesso"
+}
 ```
 
 ---
 
-## API
+### **Document Analysis** (Requires Authentication)
 
-### `POST /api/simplify`
+All endpoints below require `Authorization: Bearer <token>` header.
+
+#### `POST /api/simplify`
+Analisa um documento de texto.
 
 **Request:**
-```json
-{ "texto": "O presente instrumento tem por objeto..." }
+```bash
+TOKEN="seu_token_aqui"
+
+curl -X POST http://localhost:8080/api/simplify \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "texto": "O presente instrumento tem por objeto a locação de imóvel..."
+  }'
 ```
 
-**Response:**
+**Response (200 OK):**
 ```json
 {
-  "resumo": "Este contrato significa que...",
+  "resumo": "Este contrato significa que o locatário aluga o imóvel pelo período de 12 meses...",
   "pontosAtencao": [
-    "Multa de 10% sobre o valor total em caso de rescisão",
-    "Reajuste anual pelo IGPM sem limite de teto"
+    "Multa de 10% sobre o valor total em caso de rescisão antecipada",
+    "Reajuste anual pelo IGPM sem limite de teto",
+    "Depósito caução não reajustável"
   ],
   "veredicto": "atencao_necessaria",
   "veredictoMotivo": "O contrato possui cláusulas de reajuste e multa que merecem negociação antes da assinatura."
 }
 ```
 
-**Veredictos possíveis:**
+**HTTP Status Codes:**
+- `200 OK` — Análise bem-sucedida
+- `402 Payment Required` — Quota atingida (fazer upgrade)
+- `401 Unauthorized` — Token inválido/expirado
+- `400 Bad Request` — Erro de validação
 
-| Valor                | Significado                                     |
-|----------------------|-------------------------------------------------|
-| `seguro_assinar`     | Documento padrão, termos justos                 |
-| `atencao_necessaria` | Pontos que merecem esclarecimento ou negociação |
-| `cuidado_alto`       | Cláusulas abusivas ou riscos significativos     |
+---
 
-### `GET /api/health`
+#### `POST /api/extract`
+Extrai texto de PDF ou DOCX.
 
+**Request:**
+```bash
+TOKEN="seu_token_aqui"
+
+curl -X POST http://localhost:8080/api/extract \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@seu_documento.pdf"
+```
+
+**Response (200 OK):**
+```json
+{
+  "texto": "O texto extraído do PDF aparece aqui..."
+}
+```
+
+---
+
+#### `GET /api/history?page=0&size=10`
+Busca histórico de análises do usuário (paginado).
+
+**Request:**
+```bash
+TOKEN="seu_token_aqui"
+
+curl -X GET "http://localhost:8080/api/history?page=0&size=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Response (200 OK):**
+```json
+{
+  "content": [
+    {
+      "id": 1,
+      "fileName": "contrato_aluguel.pdf",
+      "veredicto": "atencao_necessaria",
+      "analyzedAt": "2024-06-28T14:30:00",
+      "title": "Contrato Aluguel Apto 42"
+    }
+  ],
+  "totalElements": 42,
+  "totalPages": 5,
+  "currentPage": 0
+}
+```
+
+---
+
+#### `GET /api/profile`
+Retorna dados do usuário autenticado.
+
+**Request:**
+```bash
+TOKEN="seu_token_aqui"
+
+curl -X GET http://localhost:8080/api/profile \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Response (200 OK):**
+```json
+{
+  "email": "user@example.com",
+  "name": "John Doe",
+  "plan": "PRO",
+  "documentsUsed": 47,
+  "documentsRemaining": 53
+}
+```
+
+---
+
+### **Utility**
+
+#### `GET /api/health`
+Health check (sem autenticação).
+
+**Request:**
+```bash
+curl http://localhost:8080/api/health
+```
+
+**Response (200 OK):**
 ```json
 { "status": "ok" }
 ```
+
+---
+
+## 📊 Veredictos & Risk Levels
+
+| Valor | Ícone | Significado |
+|-------|-------|-------------|
+| `seguro_assinar` | 🟢 | Documento padrão, termos justos, sem problemas |
+| `atencao_necessaria` | 🟡 | Pontos que merecem esclarecimento ou negociação antes de assinar |
+| `cuidado_alto` | 🔴 | Cláusulas abusivas, riscos significativos, revisar com especialista |
 
 ---
 
@@ -180,8 +505,115 @@ Para trocar o modelo (ex.: usar Sonnet 4.6 que é ~6× mais barato), edite `Clau
 
 ---
 
-## Como funciona a IA
+## 🏗️ Arquitetura
 
-1. O system prompt é enviado com **cache de 1 hora** — o primeiro request escreve o cache, os seguintes pagam ~10% do custo de input
-2. A resposta do Claude é **structured output tipado** — o SDK gera o JSON Schema automaticamente a partir do record `SimplificaResult`, sem parsing manual
-3. O frontend usa a resposta diretamente, sem processamento adicional
+### **Clean Architecture (Layered)**
+
+O projeto segue **Clean Architecture com separação clara de responsabilidades**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Frontend (HTML + JS)                               │
+│  - Chamadas AJAX para API                           │
+│  - UI com tabs (texto vs upload)                    │
+│  - Renderiza veredicto com ícone + cores           │
+└──────────────────┬──────────────────────────────────┘
+                   │ HTTP + JWT Token
+┌──────────────────▼──────────────────────────────────┐
+│  REST Controllers (AuthController, SimplifyController)
+│  - Validação de request (@Valid)                   │
+│  - Autenticação via JWT                            │
+│  - Quota check                                      │
+└──────────────────┬──────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────┐
+│  Services (Business Logic)                          │
+│  - AuthService: register, login, quota mgmt        │
+│  - ClaudeService: IA integration, prompt building  │
+│  - TextExtractorService: PDF/DOCX parsing          │
+└──────────────────┬──────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────┐
+│  Repositories (Data Access)                         │
+│  - UserRepository: JPA queries                      │
+│  - DocumentRepository: history + pagination        │
+└──────────────────┬──────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────┐
+│  Database (PostgreSQL)                              │
+│  - users (auth + quotas)                           │
+│  - documents (analysis history)                     │
+└─────────────────────────────────────────────────────┘
+```
+
+### **Key Architectural Decisions**
+
+1. **Stateless Microservice**
+   - Cada request é independente
+   - Session não é armazenada no servidor
+   - JWT permite scale horizontal
+
+2. **Structured Output (Claude)**
+   - Usa JSON Schema do SDK
+   - Garante resposta tipada
+   - Sem parsing manual
+
+3. **Prompt Caching**
+   - System prompt cached por 1 hora
+   - Primeiros requests pagam full, resto ~10%
+   - Reduz custos significativamente
+
+4. **JWT Authentication**
+   - Token gerado no register/login
+   - JwtFilter valida em cada request
+   - Expira em 24 horas (configurável)
+
+5. **Monthly Quota Reset**
+   - Scheduler roda 1º do mês às 00:00 UTC
+   - Reseta `documentsUsedThisMonth` para 0
+   - Suporta múltiplos planos (FREE/PRO/BUSINESS)
+
+6. **Document Persistence**
+   - Cada análise salva no DB com user + timestamp
+   - Permite histórico completo
+   - Integrado com quota system
+
+---
+
+## 🤖 Como Funciona a IA
+
+### **Request → Claude → Response**
+
+```
+1. User submits document text via /api/simplify
+   ↓
+2. AuthService valida token + quota
+   ↓
+3. ClaudeService prepara request com:
+   - System prompt (cached)
+   - User's document text
+   - Output schema (SimplificaResult.class)
+   ↓
+4. Claude API retorna estruturado:
+   {
+     "resumo": "...",
+     "pontosAtencao": [...],
+     "veredicto": "...",
+     "veredictoMotivo": "..."
+   }
+   ↓
+5. Document saved to DB (user + analysis + timestamp)
+   ↓
+6. User quota incremented
+   ↓
+7. SimplifyResponse returned to frontend
+```
+
+### **Otimizações**
+
+| Técnica | Impacto | Como Funciona |
+|---------|---------|---------------|
+| **Prompt Caching** | 90% redução (custo) | System prompt cached 1h, reutilizado |
+| **Structured Output** | Sem parsing | Claude retorna JSON tipado |
+| **Model Choice** | 6x mais barato | Sonnet 4.6 vs Opus 4.7 |
+| **No Streaming** | Simples + previsível | Full response de uma vez |
