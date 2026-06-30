@@ -15,7 +15,7 @@ public class QuotaResetScheduler {
     private final UserRepository userRepository;
 
     // Every month on the 1st at 00:00
-    @Scheduled(cron = "0 0 1 * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     public void resetMonthlyQuota() {
         log.info("Resetting monthly quotas for all users");
         userRepository.findAll().forEach(user -> {

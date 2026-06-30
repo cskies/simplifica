@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: simplifica-db-local
+    environment:
+      POSTGRES_DB: simplifica
+      POSTGRES_USER: simplifica
+      POSTGRES_PASSWORD: simplifica123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
